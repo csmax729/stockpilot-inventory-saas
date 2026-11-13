@@ -1,4 +1,4 @@
-# StockPilot
+# StockPilot — Multi-Tenant Inventory & Order Management SaaS
 
 StockPilot is an inventory and order management application for teams working in separate organizations. It tracks products and warehouses, reserves stock when orders are created, and records stock movements when inventory changes. Prices are stored in minor currency units; available stock is calculated as on-hand minus reserved.
 
