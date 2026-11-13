@@ -1,0 +1,42 @@
+digraph StockPilotERD {
+  graph [rankdir=LR, fontname="DejaVu Sans", fontsize=19, label="StockPilot — PostgreSQL Entity Relationship Diagram (v1.0)", labelloc=t, labeljust=l, bgcolor="white", pad=0.35, nodesep=0.35, ranksep=0.85, splines=polyline, outputorder=edgesfirst];
+  node [shape=record, fontname="DejaVu Sans", fontsize=10, style="rounded,filled", color="#CBD5E1", fillcolor="#F8FAFC", fontcolor="#152338", margin="0.12,0.09"];
+  edge [color="#8293A7", fontcolor="#64748B", arrowsize=0.55, fontsize=9];
+
+  users [label="{USERS|PK id : uuid\lemail : text (unique CI)\lpassword_hash : text\lis_active : bool\l}", fillcolor="#EEF4FF"];
+  organizations [label="{ORGANIZATIONS|PK id : uuid\lslug : text (unique)\lname : text\ldefault_currency : char(3)\l}", fillcolor="#E9F8F2"];
+  memberships [label="{MEMBERSHIPS|PK/FK organization_id\lPK/FK user_id\lrole : admin / manager / staff / viewer\l}"];
+  products [label="{PRODUCTS|PK id : uuid\lFK organization_id\lsku : text\lunit_price_minor : bigint\llow_stock_threshold : int\l}"];
+  warehouses [label="{WAREHOUSES|PK id : uuid\lFK organization_id\lcode : text\lis_active : bool\l}"];
+  inventory [label="{INVENTORY|PK/FK organization_id\lPK/FK warehouse_id\lPK/FK product_id\lon_hand_qty : int\lreserved_qty : int\l}", fillcolor="#FFF6E6"];
+  orders [label="{ORDERS|PK id : uuid\lFK organization_id\lFK warehouse_id\lFK created_by\lstatus : text\ltotal_minor : bigint\l}", fillcolor="#FFF6E6"];
+  order_items [label="{ORDER_ITEMS|PK id : uuid\lFK organization_id\lFK order_id\lFK product_id\lquantity : int\lunit_price_minor : bigint\l}"];
+  stock_movements [label="{STOCK_MOVEMENTS|PK id : uuid\lFK organization_id\lFK warehouse_id\lFK product_id\lFK order_id (nullable)\ldelta_on_hand : int\ldelta_reserved : int\l}"];
+  idempotency [label="{IDEMPOTENCY_RECORDS|PK id : uuid\lFK organization_id\lFK actor_user_id\lkey + request_hash\lresponse_body : jsonb\l}"];
+  auth_sessions [label="{AUTH_SESSIONS|PK id : uuid\lFK user_id\lfamily_id : uuid\lrefresh_token_hash : text\lrotated_at / revoked_at\l}"];
+  audit_logs [label="{AUDIT_LOGS|PK id : uuid\lFK organization_id\lFK actor_user_id\laction : text\lentity_id : uuid\l}"];
+
+  users -> memberships [label="1 : many"];
+  organizations -> memberships;
+  organizations -> products;
+  organizations -> warehouses;
+  organizations -> orders;
+  warehouses -> inventory;
+  products -> inventory;
+  warehouses -> orders;
+  users -> orders;
+  orders -> order_items;
+  products -> order_items;
+  inventory -> stock_movements;
+  orders -> stock_movements;
+  organizations -> idempotency;
+  users -> idempotency;
+  users -> auth_sessions;
+  organizations -> audit_logs;
+  users -> audit_logs;
+
+  {rank=same; users; organizations;}
+  {rank=same; memberships; products; warehouses; auth_sessions;}
+  {rank=same; inventory; orders; idempotency; audit_logs;}
+  {rank=same; order_items; stock_movements;}
+}

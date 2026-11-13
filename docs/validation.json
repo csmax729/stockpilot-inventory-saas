@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "openapi": "3.1.0",
+  "path_count": 24,
+  "operation_count": 30,
+  "schema_count": 31,
+  "internal_references_validated": 128,
+  "tables": [
+    "users",
+    "organizations",
+    "memberships",
+    "warehouses",
+    "products",
+    "inventory",
+    "orders",
+    "order_items",
+    "stock_movements",
+    "idempotency_records",
+    "auth_sessions",
+    "audit_logs"
+  ],
+  "design_lines": 970,
+  "sql_lines": 218,
+  "schema_executed_on_live_postgres": false
+}
