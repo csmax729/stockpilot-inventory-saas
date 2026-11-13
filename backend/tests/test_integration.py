@@ -15,7 +15,10 @@ import pytest
 def app():
     url = os.environ.get("TEST_DATABASE_URL")
     if not url:
-        pytest.skip("Set TEST_DATABASE_URL to an isolated, migrated PostgreSQL database")
+        message = "Set TEST_DATABASE_URL to an isolated, migrated PostgreSQL database"
+        if os.environ.get("REQUIRE_POSTGRES_TESTS") == "1":
+            pytest.fail(message)
+        pytest.skip(message)
     if not url.startswith(("postgresql://", "postgresql+psycopg://")):
         pytest.fail("Integration tests require PostgreSQL")
     os.environ["DATABASE_URL"] = url.replace("postgresql://", "postgresql+psycopg://", 1)

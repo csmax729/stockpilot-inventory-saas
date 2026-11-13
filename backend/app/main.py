@@ -86,7 +86,9 @@ def db_session():
             db.rollback()
             raise
 
-DB = Annotated[Session, Depends(db_session)]
+# Complete the transaction before FastAPI sends a successful response. This
+# lets commit-time failures be handled while the HTTP status can still change.
+DB = Annotated[Session, Depends(db_session, scope='function')]
 bearer_auth = HTTPBearer(auto_error=False)
 
 
@@ -358,11 +360,16 @@ def page_cursor(values):
     return base64.urlsafe_b64encode(json.dumps([str(value) for value in values]).encode()).decode()
 
 def parse_cursor(cursor, size):
-    if not cursor:
+    if cursor is None:
         return None
     try:
-        values = json.loads(base64.urlsafe_b64decode(cursor.encode()).decode())
-        if not isinstance(values, list) or len(values) != size:
+        # Reject invalid alphabet/padding and non-string elements before route
+        # handlers try to parse timestamps or UUIDs. All generated cursors are
+        # short, padded URL-safe base64 encodings of JSON string arrays.
+        if not cursor or len(cursor) > 1024:
+            raise ValueError()
+        values = json.loads(base64.b64decode(cursor.encode('ascii'), altchars=b'-_', validate=True).decode('utf-8'))
+        if not isinstance(values, list) or len(values) != size or not all(isinstance(value, str) for value in values):
             raise ValueError()
         return values
     except (ValueError, TypeError, UnicodeDecodeError):

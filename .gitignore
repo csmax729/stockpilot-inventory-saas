@@ -1,14 +1,36 @@
+
+# Environment variables and secrets
 .env
 .env.*
 !.env.example
+
+# Python virtual environments
 .venv/
-.uv-cache/
+venv/
+env/
+
+# Python caches
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.uv-cache/
+.coverage
+htmlcov/
+
+# Frontend
 node_modules/
 dist/
 coverage/
 *.tsbuildinfo
+
+# Temporary and generated files
+tmp/
+output/
+
+# IDE and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
